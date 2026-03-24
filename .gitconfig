@@ -1,0 +1,7 @@
+[user]
+	name = " taniguchi"
+	email = assnsmile2005@gmail.com
+[color]
+	ui = auto
+[http]
+	cookiefile = /home/taniguchi/.gitcookies
