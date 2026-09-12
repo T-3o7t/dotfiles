@@ -94,12 +94,14 @@ export PATH_tz_datasets=~/tz_datasets
 export PLATFORM=rpi3
 export SPARROW_ROOTDIR=$HOME/sparrow
 export CANTRIP_RUST_VERSION=nightly
-export CARGO_HOME=$HOME/.cargo
+#export CARGO_HOME=$HOME/.cargo
 
 # some more ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+
+alias sl='sl -e'
 
 # vi/vim は常に nvim を使う（設定は ~/.config/nvim に統一）
 if command -v nvim >/dev/null 2>&1; then
@@ -132,4 +134,4 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-. "$HOME/.cargo/env"
+#. "$HOME/.cargo/env"
