@@ -30,3 +30,28 @@ map("t", "<Esc><Esc>", [[<C-\><C-n>]], { desc = "Exit terminal mode" })
 map("i", "jk", "<Esc>", { desc = "Exit insert mode" })
 
 -- C/C++: <leader>ch でソース <-> ヘッダ切替 は clangd extra が提供
+
+-- :W / :Q などの Shift 打ち間違いを許容する（vi 由来の癖への対策）
+local function cmd_alias(name, target)
+  vim.api.nvim_create_user_command(name, function(o)
+    vim.cmd(target .. (o.bang and "!" or "") .. (o.args ~= "" and (" " .. o.args) or ""))
+  end, { bang = true, nargs = "*" })
+end
+
+for name, target in pairs({
+  W = "write",
+  Q = "quit",
+  Qa = "qall",
+  QA = "qall",
+  Wa = "wall",
+  WA = "wall",
+  Wq = "wq",
+  WQ = "wq",
+  Wqa = "wqa",
+  WQA = "wqa",
+  X = "xit",
+  Xa = "xall",
+  XA = "xall",
+}) do
+  cmd_alias(name, target)
+end

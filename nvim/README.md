@@ -35,6 +35,12 @@ pip 系ツールも入れ直せる（その場合 `lua/plugins/coding.lua` の `
   （CMake: `-DCMAKE_EXPORT_COMPILE_COMMANDS=1`、または `bear -- make`）か `.clangd` が必要。
 - この設定は `~/.config/nvim` と `~/github/dotfiles/nvim` の 2 か所にコピーで存在する。
   編集後は両者を同期してから commit する。
+- **dotfiles 全体はさらに複雑:** `~/.bashrc` / `~/.profile` の実体（symlink 先）は `~/dotfiles`
+  （同じ remote `T-3o7t/dotfiles` の別チェックアウトで、commit `1e11444` のまま止まっており
+  `nvim/*` 等が working tree 上で削除された状態）。`~/github/dotfiles` は最新化されている方だが
+  symlink されていない。`~/.vimrc` / `~/.vim` は両方の管理下になく home 直下の実ファイル。
+  シェル設定を変更する際は **`~/dotfiles`（symlink 先・即反映用）と `~/github/dotfiles`
+  （commit/push 用）の両方に同じ変更を入れる**必要がある。いずれ一本化を推奨。
 
 ---
 
@@ -42,6 +48,19 @@ pip 系ツールも入れ直せる（その場合 `lua/plugins/coding.lua` の `
 
 **記法:** 変更したら `### YYYY-MM-DD — 概要` の見出しを **この行のすぐ下（新しいものが上）** に追加し、
 変更点を箇条書きで書く。関連するファイル名を添える。
+
+### 2026-09-12 — 旧 vi 設定の取り込み・コマンド簡略化
+
+`~/.vimrc`（`colorscheme tender` / `nonumber` / `tabstop=4` / `shiftwidth=4`）の内容を確認し、
+nvim 側へ反映。`tabstop=4` 等は元々一致していたため差分なし。
+
+- `colors/tender.vim`（新規）: `~/.vim/colors/tender.vim` を移植。既定は tokyonight-storm を維持し、
+  `:colorscheme tender` または `<leader>uC`（カラースキーム picker）で切替可能に
+- 行番号表示は現状（`number` + `relativenumber` 表示）を維持（vimrc の `nonumber` には合わせない）
+- `lua/config/keymaps.lua`: `:W` `:Q` `:Wq` `:WQ` `:Qa` `:QA` `:Wa` `:WA` `:X` `:Xa` `:XA` —
+  Shift 押し忘れ/押しすぎのタイポを許容するコマンド別名を追加（`!` やファイル名引数も動作）
+- シェル側（`~/.bashrc`）: `vi` / `vim` を `nvim` の alias にし、`$EDITOR` / `$VISUAL` も `nvim` に設定
+  （このファイルは `~/dotfiles` と `~/github/dotfiles` の双方に反映。詳細は「メモ」参照）
 
 ### 2026-09-09 — 初期整備（C/C++ 対応・UI・キーマップ・クリップボード）
 

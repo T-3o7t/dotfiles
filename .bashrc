@@ -101,6 +101,14 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
+# vi/vim は常に nvim を使う（設定は ~/.config/nvim に統一）
+if command -v nvim >/dev/null 2>&1; then
+    alias vi='nvim'
+    alias vim='nvim'
+    export EDITOR='nvim'
+    export VISUAL='nvim'
+fi
+
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
