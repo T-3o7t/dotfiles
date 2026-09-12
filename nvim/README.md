@@ -33,14 +33,10 @@ pip 系ツールも入れ直せる（その場合 `lua/plugins/coding.lua` の `
 
 - C/C++ のクロスファイル補完・診断をフルに使うにはプロジェクト直下に `compile_commands.json`
   （CMake: `-DCMAKE_EXPORT_COMPILE_COMMANDS=1`、または `bear -- make`）か `.clangd` が必要。
-- この設定は `~/.config/nvim` と `~/github/dotfiles/nvim` の 2 か所にコピーで存在する。
-  編集後は両者を同期してから commit する。
-- **dotfiles 全体はさらに複雑:** `~/.bashrc` / `~/.profile` の実体（symlink 先）は `~/dotfiles`
-  （同じ remote `T-3o7t/dotfiles` の別チェックアウトで、commit `1e11444` のまま止まっており
-  `nvim/*` 等が working tree 上で削除された状態）。`~/github/dotfiles` は最新化されている方だが
-  symlink されていない。`~/.vimrc` / `~/.vim` は両方の管理下になく home 直下の実ファイル。
-  シェル設定を変更する際は **`~/dotfiles`（symlink 先・即反映用）と `~/github/dotfiles`
-  （commit/push 用）の両方に同じ変更を入れる**必要がある。いずれ一本化を推奨。
+- `~/.config/nvim` は `~/github/dotfiles/nvim` への symlink（2026-09-12 に統合済み。手動同期は不要）。
+- dotfiles 全体も `~/github/dotfiles` に一本化済み。`~/.bashrc` `~/.profile` `~/.gitconfig`
+  `~/.vimrc` `~/.vim` `~/.config/nvim` はすべてここへの symlink（`install.sh` 参照）。
+  旧 `~/dotfiles`（別チェックアウト）は廃止。
 
 ---
 
@@ -48,6 +44,23 @@ pip 系ツールも入れ直せる（その場合 `lua/plugins/coding.lua` の `
 
 **記法:** 変更したら `### YYYY-MM-DD — 概要` の見出しを **この行のすぐ下（新しいものが上）** に追加し、
 変更点を箇条書きで書く。関連するファイル名を添える。
+
+### 2026-09-12 — dotfiles を `~/github/dotfiles` に一本化
+
+これまで `~/dotfiles`（symlink 先・実体だが commit `1e11444` のまま停滞）と `~/github/dotfiles`
+（git 管理用・最新）に分裂していたのを解消。
+
+- `~/dotfiles` と `~/github/dotfiles` の内容差分を確認し、実際に使われていた値を
+  `~/github/dotfiles` へマージ: `.gitconfig`（`user.name`）、`wezterm/wezterm.lua`
+  （独自キーバインド・leader キー入りの版を採用）、`nvim/lazy-lock.json`
+- `install.sh`: `DOT_DIRECTORY` を `~/github/dotfiles` に変更。`~/.config/nvim` の symlink 作成も追加
+- home 直下の symlink を張り替え: `~/.bashrc` `~/.profile` `~/.gitconfig` `~/.vimrc` `~/.vim`
+  `~/.config/nvim` はすべて `~/github/dotfiles` 配下を指すように統一
+- `~/.git`（`~/dotfiles/.git` への symlink。home 全体が意図せず git 管理下になっていた原因）を削除
+- 旧 `~/dotfiles` は `~/dotfiles.old-backup` に退避（`~/.vim.old-backup` /
+  `~/.config/nvim.old-backup` も同様）。動作確認後、不要なら削除してよい
+- 動作確認: 新規シェルで `vi`/`vim` alias・`$EDITOR`・`git config user.name`、
+  nvim の symlink 経由起動（プラグイン読込・`:W` 系コマンド）を確認済み
 
 ### 2026-09-12 — 旧 vi 設定の取り込み・コマンド簡略化
 
