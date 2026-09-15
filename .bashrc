@@ -76,10 +76,10 @@ esac
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
 
-#    alias grep='grep --color=auto'
+    alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
@@ -94,23 +94,14 @@ export PATH_tz_datasets=~/tz_datasets
 export PLATFORM=rpi3
 export SPARROW_ROOTDIR=$HOME/sparrow
 export CANTRIP_RUST_VERSION=nightly
-#export CARGO_HOME=$HOME/.cargo
+export CARGO_HOME=$HOME/.cargo
 
 # some more ls aliases
 alias ll='ls -alF'
-alias la='ls -A'
+alias la='ls -la'
 alias l='ls -CF'
 
-alias sl='sl -e'
-
-# vi/vim は常に nvim を使う（設定は ~/.config/nvim に統一）
-if command -v nvim >/dev/null 2>&1; then
-    alias vi='nvim'
-    alias vim='nvim'
-    export EDITOR='nvim'
-    export VISUAL='nvim'
-    alias n='nvim'   # 短縮: n file.cpp / n . でファイラ
-fi
+#aliase
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -136,3 +127,9 @@ if ! shopt -oq posix; then
   fi
 fi
 #. "$HOME/.cargo/env"
+export PATH="$HOME/.local/bin:$PATH"
+
+# n で nvim を起動（n file.cpp / n . でファイラ）
+if command -v nvim >/dev/null 2>&1; then
+    alias n='nvim'
+fi
