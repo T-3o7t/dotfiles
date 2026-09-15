@@ -11,10 +11,11 @@ Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使�
 | `init.lua` | leader 設定と `config.*` の読み込み |
 | `lua/config/options.lua` | オプション（WSL クリップボード、インデント、外観、PATH など） |
 | `lua/config/keymaps.lua` | プラグインに依存しないキーマップと `:W` 系コマンド別名 |
-| `lua/config/autocmds.lua` | yank ハイライト / カーソル位置復元 / 保存時 mkdir / formatoptions |
+| `lua/config/autocmds.lua` | yank ハイライト / カーソル位置復元 / 保存時 mkdir / formatoptions / ターミナル表示 |
+| `lua/config/terminal.lua` | 右側ターミナルのトグル、Claude Code 起動、3 ペイン配置 |
 | `lua/config/lazy.lua` | lazy.nvim ブートストラップと `setup()` |
 | `lua/plugins/colorscheme.lua` | tokyonight / catppuccin（`<leader>ut` で切替、選択を保存） |
-| `lua/plugins/explorer.lua` | oil.nvim（ファイラ、`-` で親ディレクトリ） |
+| `lua/plugins/explorer.lua` | oil.nvim（ディレクトリ編集、`-`）/ nvim-tree（ツリーサイドバー、`<leader>e`） |
 | `lua/plugins/ui.lua` | lualine / which-key / mini.icons |
 | `lua/plugins/treesitter.lua` | nvim-treesitter（main ブランチ）/ treesitter-context |
 | `lua/plugins/lsp.lua` | mason / mason-lspconfig / nvim-lspconfig / lazydev、LSP キーマップ |
@@ -24,13 +25,14 @@ Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使�
 | `colors/tender.vim` | 旧 vim から移植したカラースキーム（`:colorscheme tender` で切替） |
 | `lazy-lock.json` | プラグインのバージョン固定 |
 
-## プラグイン（14 個）
+## プラグイン（15 個）
 
 | プラグイン | 役割 | 読込タイミング |
 |---|---|---|
 | tokyonight.nvim | カラースキーム（初期値） | 起動時 |
 | catppuccin | カラースキーム（`<leader>ut` で切替） | 切替時 |
 | oil.nvim | ファイラ（ディレクトリをバッファとして編集） | 起動時 |
+| nvim-tree.lua | ツリーサイドバー | キー押下時 |
 | nvim-treesitter (+context) | シンタックスハイライト・インデント・関数ヘッダ固定表示 | 起動時 / VeryLazy |
 | mason.nvim / mason-lspconfig.nvim | LSP サーバの導入と自動有効化（clangd / neocmakelsp / lua_ls） | `:Mason` / ファイル読込時 |
 | nvim-lspconfig | 各 LSP サーバの既定設定 | ファイル読込時 |
@@ -53,6 +55,10 @@ Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使�
 | `<leader>p`（visual） | レジスタを汚さないペースト | keymaps.lua |
 | `<leader>l` | `:Lazy` | keymaps.lua |
 | `-` | 親ディレクトリを oil で開く（oil 内: `<CR>` 開く / `-` 親へ / `g?` ヘルプ / `g.` 隠しファイル） | explorer.lua |
+| `<leader>e` / `<leader>E` | ツリーをトグル / 現在ファイルをツリーで表示（ツリー内: `a` 作成 `d` 削除 `r` リネーム `g?` ヘルプ） | explorer.lua |
+| `<leader>tt` / `<leader>tc` | 右側にターミナル / Claude Code をトグル（バッファは保持、再表示で続きから） | terminal.lua |
+| `<leader>tl` | 「ツリー \| コード \| claude」の 3 ペイン配置を一発で作る | terminal.lua |
+| `<C-h/j/k/l>`（terminal） | ターミナル内からウィンドウ移動（`<Esc><Esc>` でノーマルに戻る手もある） | terminal.lua |
 | `<leader>ut` | tokyonight ⇄ catppuccin 切替（`~/.local/share/nvim/colorscheme` に保存、次回起動も維持） | colorscheme.lua |
 | `<leader>uC` | カラースキーム picker（プレビュー付き。tender 等も選べる） | telescope.lua |
 | `<leader>ff` `<leader><space>` | ファイル検索 | telescope.lua |
@@ -89,6 +95,14 @@ Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使�
 
 **記法:** 変更したら `### YYYY-MM-DD — 概要` の見出しを **この行のすぐ下（新しいものが上）** に追加し、
 変更点を箇条書きで書く。関連するファイル名を添える。
+
+### 2026-09-15 — ターミナル分割・Claude Code 起動・nvim-tree 追加
+
+- `lua/config/terminal.lua`（新規）: `<leader>tt` シェル / `<leader>tc` Claude Code を右側縦分割（幅 40%）でトグル。
+  `<leader>tl` で nvim-tree + claude を同時に開く 3 ペイン配置。terminal モードでも `<C-h/j/k/l>` でウィンドウ移動
+- `lua/plugins/explorer.lua`: nvim-tree.lua を追加（`<leader>e` トグル、`<leader>E` 現在ファイルを表示）。
+  `hijack_directories` を無効にし、`nvim .` は引き続き oil が開く
+- `lua/config/autocmds.lua`: `TermOpen` で行番号 / サイン列を消す
 
 ### 2026-09-15 — カラースキームを tokyonight / catppuccin の 2 択に、shell に `n` alias
 

@@ -37,6 +37,16 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
+-- ターミナルバッファでは行番号 / サイン列を出さない
+vim.api.nvim_create_autocmd("TermOpen", {
+  group = augroup("term_open"),
+  callback = function()
+    vim.opt_local.number = false
+    vim.opt_local.relativenumber = false
+    vim.opt_local.signcolumn = "no"
+  end,
+})
+
 -- コメント行の下で o/O や Enter を押したときにコメントリーダーを自動挿入しない
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup("formatoptions"),
