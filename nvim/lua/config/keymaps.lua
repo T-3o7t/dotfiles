@@ -1,9 +1,29 @@
--- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- ここには LazyVim の既定と衝突しない追加分だけを置く。
--- ウィンドウ / バッファ移動、行移動(<A-j>/<A-k>)、<C-s> 保存、]q/[q、コメント等は既定で入っている。
+-- プラグインに依存しないキーマップ。
+-- プラグイン固有のもの（telescope / LSP / gitsigns）は lua/plugins/ の各 spec 側に置く。
 
 local map = vim.keymap.set
+
+-- ウィンドウ移動
+map("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
+map("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
+map("n", "<C-k>", "<C-w>k", { desc = "Go to upper window" })
+map("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
+
+-- バッファ切替 / 閉じる
+map("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Prev buffer" })
+map("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
+
+-- 行移動（Alt-j / Alt-k）
+map("n", "<A-j>", "<cmd>m .+1<CR>==", { desc = "Move line down" })
+map("n", "<A-k>", "<cmd>m .-2<CR>==", { desc = "Move line up" })
+map("i", "<A-j>", "<Esc><cmd>m .+1<CR>==gi", { desc = "Move line down" })
+map("i", "<A-k>", "<Esc><cmd>m .-2<CR>==gi", { desc = "Move line up" })
+map("x", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+map("x", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+
+-- 保存
+map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<CR><Esc>", { desc = "Save file" })
 
 -- ビジュアルのインデントで選択を維持
 map("x", "<", "<gv", { desc = "Indent left (keep selection)" })
@@ -12,7 +32,7 @@ map("x", ">", ">gv", { desc = "Indent right (keep selection)" })
 -- 選択範囲へのペーストでレジスタを汚さない
 map("x", "<leader>p", [["_dP]], { desc = "Paste without yank" })
 
--- スクロール / 検索移動時にカーソルを画面中央へ（LazyVim の検索方向正規化は維持）
+-- スクロール / 検索移動時にカーソルを画面中央へ（n は常に前方、N は常に後方に正規化）
 map("n", "n", "'Nn'[v:searchforward] . 'zzzv'", { expr = true, desc = "Next search result (centered)" })
 map("n", "N", "'nN'[v:searchforward] . 'zzzv'", { expr = true, desc = "Prev search result (centered)" })
 map("x", "n", "'Nn'[v:searchforward] . 'zzzv'", { expr = true, desc = "Next search result (centered)" })
@@ -29,7 +49,8 @@ map("t", "<Esc><Esc>", [[<C-\><C-n>]], { desc = "Exit terminal mode" })
 -- 挿入モードを jk で抜ける（不要なら下の 1 行を削除）
 map("i", "jk", "<Esc>", { desc = "Exit insert mode" })
 
--- C/C++: <leader>ch でソース <-> ヘッダ切替 は clangd extra が提供
+-- プラグイン管理画面
+map("n", "<leader>l", "<cmd>Lazy<CR>", { desc = "Lazy" })
 
 -- :W / :Q などの Shift 打ち間違いを許容する（vi 由来の癖への対策）
 local function cmd_alias(name, target)

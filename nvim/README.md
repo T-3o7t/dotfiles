@@ -1,42 +1,81 @@
-# Neovim config (LazyVim ベース)
+# Neovim config (lazy.nvim 自前構成)
 
-WSL + wezterm 上で使う Neovim 設定。[LazyVim](https://github.com/LazyVim/LazyVim) スターターをベースにしている。
+WSL + wezterm 上で使う Neovim 設定。プラグインマネージャ [lazy.nvim](https://github.com/folke/lazy.nvim) に
+必要なプラグインだけを自分で列挙した構成（以前は LazyVim ベースだったが 2026-09-15 に脱却）。
+Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使用。現在 0.12 で動作確認）。
 
 ## 構成
 
 | パス | 役割 |
 |---|---|
-| `init.lua` | leader 設定と `config.lazy` の読み込み |
-| `lua/config/options.lua` | オプション（WSL クリップボード、インデント、外観など） |
-| `lua/config/keymaps.lua` | LazyVim 既定と衝突しない追加キーマップ |
-| `lua/config/autocmds.lua` | 追加 autocmd |
-| `lua/config/lazy.lua` | lazy.nvim ブートストラップ |
-| `lua/plugins/*.lua` | プラグインの追加・上書き（`colorscheme` / `ui` / `coding`） |
-| `lazyvim.json` | 有効化している LazyVim extras |
+| `init.lua` | leader 設定と `config.*` の読み込み |
+| `lua/config/options.lua` | オプション（WSL クリップボード、インデント、外観、PATH など） |
+| `lua/config/keymaps.lua` | プラグインに依存しないキーマップと `:W` 系コマンド別名 |
+| `lua/config/autocmds.lua` | yank ハイライト / カーソル位置復元 / 保存時 mkdir / formatoptions |
+| `lua/config/lazy.lua` | lazy.nvim ブートストラップと `setup()` |
+| `lua/plugins/colorscheme.lua` | tokyonight（storm） |
+| `lua/plugins/ui.lua` | lualine / which-key / mini.icons |
+| `lua/plugins/treesitter.lua` | nvim-treesitter（main ブランチ）/ treesitter-context |
+| `lua/plugins/lsp.lua` | mason / mason-lspconfig / nvim-lspconfig / lazydev、LSP キーマップ |
+| `lua/plugins/completion.lua` | blink.cmp |
+| `lua/plugins/telescope.lua` | telescope（ファイル / grep / バッファ検索） |
+| `lua/plugins/git.lua` | gitsigns |
+| `colors/tender.vim` | 旧 vim から移植したカラースキーム（`:colorscheme tender` で切替） |
 | `lazy-lock.json` | プラグインのバージョン固定 |
+
+## プラグイン（12 個）
+
+| プラグイン | 役割 | 読込タイミング |
+|---|---|---|
+| tokyonight.nvim | カラースキーム | 起動時 |
+| nvim-treesitter (+context) | シンタックスハイライト・インデント・関数ヘッダ固定表示 | 起動時 / VeryLazy |
+| mason.nvim / mason-lspconfig.nvim | LSP サーバの導入と自動有効化（clangd / neocmakelsp / lua_ls） | `:Mason` / ファイル読込時 |
+| nvim-lspconfig | 各 LSP サーバの既定設定 | ファイル読込時 |
+| lazydev.nvim | nvim 設定編集時の `vim.*` 補完 | Lua ファイル |
+| blink.cmp | 補完（`<CR>` 確定、`<C-n>/<C-p>` 選択） | 挿入モード |
+| telescope.nvim (+plenary) | ファジーファインダ | キー押下時 |
+| lualine.nvim (+mini.icons) | ステータスライン（相対パス表示） | VeryLazy |
+| which-key.nvim | `<leader>` 後のキー候補表示 | VeryLazy |
+| gitsigns.nvim | git 差分サイン・hunk 操作 | ファイル読込時 |
+
+## 主なキーマップ（leader = Space）
+
+| キー | 動作 | 定義場所 |
+|---|---|---|
+| `<C-h/j/k/l>` | ウィンドウ移動 | keymaps.lua |
+| `<S-h>` / `<S-l>` / `<leader>bd` | 前 / 次のバッファ / バッファを閉じる | keymaps.lua |
+| `<A-j>` / `<A-k>` | 行（選択範囲）を上下に移動 | keymaps.lua |
+| `<C-s>` | 保存 | keymaps.lua |
+| `jk` / `<Esc>` | 挿入モード脱出 / 検索ハイライト消去 | keymaps.lua |
+| `<leader>p`（visual） | レジスタを汚さないペースト | keymaps.lua |
+| `<leader>l` | `:Lazy` | keymaps.lua |
+| `<leader>ff` `<leader><space>` | ファイル検索 | telescope.lua |
+| `<leader>fg` `<leader>/` | grep（ripgrep 必要） | telescope.lua |
+| `<leader>fb` / `fr` / `fh` / `fd` | バッファ / 最近のファイル / ヘルプ / 診断 | telescope.lua |
+| `gd` / `gr` / `gI` / `<leader>cs` | 定義 / 参照 / 実装 / シンボル（telescope） | lsp.lua |
+| `<leader>ca` / `cr` / `cf` / `cd` | コードアクション / リネーム / 整形 / 行の診断 | lsp.lua |
+| `K` / `]d` `[d` | ホバー / 診断移動（Neovim 組込） | — |
+| `]c` `[c` / `<leader>gp` `gb` `gr` | hunk 移動 / プレビュー / blame / リセット | git.lua |
 
 ## 依存（設定リポジトリ外）
 
-このマシンの Mason は Python venv を作れない（`python3-venv` / `ensurepip` 不足）ため、以下は
-`~/.local/bin` に手動導入している。**別マシンでは各自インストールが必要。**
-
 | ツール | 用途 | 入手方法 |
 |---|---|---|
-| `win32yank.exe` | WSL クリップボード連携 | [equalsraf/win32yank](https://github.com/equalsraf/win32yank) の releases から DL して `~/.local/bin` へ |
-| `clang-format` | C/C++ 整形（CLI 用途。nvim 内の整形は clangd LSP が担当するので必須ではない） | `pip install --user --break-system-packages clang-format` |
-| `cmakelint` / `cmakelang` | CMake の lint / 整形 | `pip install --user --break-system-packages cmakelint cmakelang` |
-
-`clangd` と `neocmakelsp` は Mason で導入済み。`sudo apt install python3-venv` 後は `:Mason` で
-pip 系ツールも入れ直せる（その場合 `lua/plugins/coding.lua` の `ensure_installed` 除外は不要になる）。
+| `win32yank.exe` | WSL クリップボード連携 | Windows 側 Neovim 同梱（`C:\Program Files\Neovim\bin`）が WSL の PATH に乗っていれば追加導入不要 |
+| `ripgrep` (`rg`) | telescope の live grep | `sudo apt install ripgrep` |
+| C コンパイラ (`gcc`) | Treesitter パーサのビルド | 導入済み |
+| `clangd` / `neocmakelsp` / `lua-language-server` / `tree-sitter` | LSP と Treesitter CLI | Mason が自動導入（`~/.local/share/nvim/mason/bin`。options.lua で PATH に追加済み） |
 
 ## メモ
 
 - C/C++ のクロスファイル補完・診断をフルに使うにはプロジェクト直下に `compile_commands.json`
   （CMake: `-DCMAKE_EXPORT_COMPILE_COMMANDS=1`、または `bear -- make`）か `.clangd` が必要。
-- `~/.config/nvim` は `~/github/dotfiles/nvim` への symlink（2026-09-12 に統合済み。手動同期は不要）。
-- dotfiles 全体も `~/github/dotfiles` に一本化済み。`~/.bashrc` `~/.profile` `~/.gitconfig`
-  `~/.vimrc` `~/.vim` `~/.config/nvim` はすべてここへの symlink（`install.sh` 参照）。
-  旧 `~/dotfiles`（別チェックアウト）は廃止。
+- 整形は clangd（C/C++）・neocmakelsp（CMake）・stylua（Lua、Mason 導入済みで LSP モード動作）が LSP 経由で担当。
+  `<leader>cf` で手動実行。保存時の自動整形は無し。
+- nvim-treesitter は main ブランチ。対象言語は `lua/plugins/treesitter.lua` の `languages` に追加する
+  （旧 master の `ensure_installed` は無い）。
+- `~/.config/nvim` の実体は `~/github/dotfiles/nvim` と同期している（rsync）。symlink ではない。
+- 旧 LazyVim 構成は `~/.config/nvim.lazyvim-backup` に退避（`~/.config/nvim_org` は更に古い初期スターター）。
 
 ---
 
@@ -44,6 +83,27 @@ pip 系ツールも入れ直せる（その場合 `lua/plugins/coding.lua` の `
 
 **記法:** 変更したら `### YYYY-MM-DD — 概要` の見出しを **この行のすぐ下（新しいものが上）** に追加し、
 変更点を箇条書きで書く。関連するファイル名を添える。
+
+### 2026-09-15 — LazyVim を外し自前 lazy.nvim 構成へ
+
+LazyVim（35 プラグイン、既定キーマップ多数）がブラックボックスで使いづらかったため、
+lazy.nvim に必要なプラグイン 12 個だけを列挙する構成に作り直した。
+
+- `init.lua`: `config.keymaps` / `config.autocmds` を明示的に require（LazyVim の VeryLazy 自動読込に依存しない）
+- `lua/config/lazy.lua`: `LazyVim/LazyVim` の import を削除。`rocks.enabled = false`
+- `lua/config/options.lua`: LazyVim が設定していた既定のうち必要なものを移植
+  （`clipboard=unnamedplus` `undofile` `cursorline` `scrolloff` `splitright/below` `timeoutlen=300` 等）。
+  Mason の bin ディレクトリを PATH に追加（mason.nvim を遅延読込にしても clangd / tree-sitter が解決できるように）
+- `lua/config/keymaps.lua`: LazyVim 既定から `<C-hjkl>` `<S-h>/<S-l>` `<A-j>/<A-k>` `<C-s>` を移植。
+  `]q/[q` `<leader>ch` 等その他の LazyVim 既定キーは引き継がない
+- `lua/config/autocmds.lua`: LazyVim が担っていた yank ハイライト / カーソル位置復元 / 保存時 mkdir を移植
+- `lua/plugins/`: `coding.lua` を削除し `treesitter.lua` `lsp.lua` `completion.lua` `telescope.lua` `git.lua` を新規作成。
+  `colorscheme.lua` から `LazyVim` の opts 行を削除、`ui.lua` から noice を削除し mini.icons を追加
+- 削除: `lazyvim.json` `.neoconf.json`（LazyVim / neoconf 専用）
+- 入れなかったもの: snacks, noice, flash, mini.pairs, mini.ai, conform, nvim-lint, bufferline, trouble,
+  todo-comments, persistence, grug-far, catppuccin, clangd_extensions, cmake-tools, friendly-snippets 等
+- 動作確認（headless）: `.cpp` で clangd、`CMakeLists.txt` で neocmake、`.lua` で lua_ls が attach、
+  Treesitter ハイライト / indentexpr 有効、`:checkhealth lazy` エラーなし、起動 約 30 ms
 
 ### 2026-09-12 — dotfiles を `~/github/dotfiles` に一本化
 

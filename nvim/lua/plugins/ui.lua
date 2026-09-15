@@ -1,31 +1,45 @@
 return {
-  -- which-key: モダンなプリセットで見やすく（キーマップの発見性アップ）
+  -- アイコン（lualine / telescope 用。nvim-web-devicons 互換 API も提供）
   {
-    "folke/which-key.nvim",
-    opts = {
-      preset = "modern",
-    },
+    "echasnovski/mini.icons",
+    lazy = true,
+    opts = {},
+    init = function()
+      package.preload["nvim-web-devicons"] = function()
+        require("mini.icons").mock_nvim_web_devicons()
+        return package.loaded["nvim-web-devicons"]
+      end
+    end,
   },
 
-  -- noice: LSP ホバー / シグネチャに枠線
+  -- ステータスライン
   {
-    "folke/noice.nvim",
+    "nvim-lualine/lualine.nvim",
+    event = "VeryLazy",
+    dependencies = { "echasnovski/mini.icons" },
     opts = {
-      presets = {
-        lsp_doc_border = true,
+      options = {
+        globalstatus = true,
+      },
+      sections = {
+        lualine_c = { { "filename", path = 1 } }, -- 相対パス表示
+        lualine_x = { "lsp_status", "filetype" },
       },
     },
   },
 
-  -- lualine: ファイル名を相対パス表示に
+  -- which-key: <leader> 後のキー候補をポップアップ表示
   {
-    "nvim-lualine/lualine.nvim",
-    opts = function(_, opts)
-      for _, comp in ipairs(opts.sections.lualine_c or {}) do
-        if type(comp) == "table" and comp[1] == "filename" then
-          comp.path = 1
-        end
-      end
-    end,
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {
+      preset = "modern",
+      spec = {
+        { "<leader>b", group = "buffer" },
+        { "<leader>c", group = "code" },
+        { "<leader>f", group = "find" },
+        { "<leader>g", group = "git" },
+      },
+    },
   },
 }
