@@ -109,6 +109,7 @@ if command -v nvim >/dev/null 2>&1; then
     alias vim='nvim'
     export EDITOR='nvim'
     export VISUAL='nvim'
+    alias n='nvim'   # 短縮: n file.cpp / n . でファイラ
 fi
 
 # Add an "alert" alias for long running commands.  Use like so:

@@ -1,7 +1,26 @@
--- 既定は tokyonight。比較用に catppuccin / kanagawa / gruvbox も入れてある（lazy = true なので
--- 起動コストは無く、:colorscheme <name> か <leader>uC の picker で切替時に読み込まれる）。
--- 決まったら既定にするものを lazy = false / priority = 1000 にし、config で colorscheme を呼ぶ。
--- 不要になったものはこのファイルから消して :Lazy clean。
+-- tokyonight と catppuccin を <leader>ut で切替。選択は data ディレクトリに保存し次回起動時も維持する。
+local state_file = vim.fn.stdpath("data") .. "/colorscheme"
+local schemes = { "tokyonight", "catppuccin" }
+
+local function saved_scheme()
+  local f = io.open(state_file, "r")
+  if not f then
+    return schemes[1]
+  end
+  local name = vim.trim(f:read("*a") or "")
+  f:close()
+  return vim.tbl_contains(schemes, name) and name or schemes[1]
+end
+
+local function apply(name)
+  vim.cmd.colorscheme(name) -- lazy = true のプラグインでも lazy.nvim が ColorSchemePre で自動読込する
+  local f = io.open(state_file, "w")
+  if f then
+    f:write(name)
+    f:close()
+  end
+end
+
 return {
   {
     "folke/tokyonight.nvim",
@@ -15,12 +34,18 @@ return {
     },
     config = function(_, opts)
       require("tokyonight").setup(opts)
-      -- colors/tender.vim もあるので :colorscheme tender で切替可能
-      vim.cmd.colorscheme("tokyonight")
+      apply(saved_scheme())
+
+      vim.keymap.set("n", "<leader>ut", function()
+        local cur = vim.g.colors_name or ""
+        local next = cur:find("^tokyonight") and schemes[2] or schemes[1]
+        apply(next)
+        vim.notify("colorscheme: " .. next)
+      end, { desc = "Toggle colorscheme (tokyonight / catppuccin)" })
     end,
   },
 
-  -- パステル寄りの暗色。:colorscheme catppuccin-mocha（latte / frappe / macchiato / mocha）
+  -- パステル寄りの暗色。flavour: latte / frappe / macchiato / mocha
   {
     "catppuccin/nvim",
     name = "catppuccin",
@@ -29,19 +54,5 @@ return {
       flavour = "mocha",
       integrations = { blink_cmp = true, gitsigns = true, telescope = true, which_key = true, treesitter_context = true },
     },
-  },
-
-  -- 和風の落ち着いたパレット。:colorscheme kanagawa-wave（wave / dragon / lotus）
-  {
-    "rebelot/kanagawa.nvim",
-    lazy = true,
-    opts = {},
-  },
-
-  -- 暖色レトロ。旧 tender に近い雰囲気。:colorscheme gruvbox（contrast = "hard" | "" | "soft"）
-  {
-    "ellisonleao/gruvbox.nvim",
-    lazy = true,
-    opts = { contrast = "" },
   },
 }
