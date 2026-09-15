@@ -39,6 +39,7 @@ return {
         { "<leader>c", group = "code" },
         { "<leader>f", group = "find" },
         { "<leader>g", group = "git" },
+        { "<leader>u", group = "ui" },
       },
     },
   },

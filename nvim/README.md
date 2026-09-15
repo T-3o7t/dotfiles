@@ -13,7 +13,8 @@ Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使�
 | `lua/config/keymaps.lua` | プラグインに依存しないキーマップと `:W` 系コマンド別名 |
 | `lua/config/autocmds.lua` | yank ハイライト / カーソル位置復元 / 保存時 mkdir / formatoptions |
 | `lua/config/lazy.lua` | lazy.nvim ブートストラップと `setup()` |
-| `lua/plugins/colorscheme.lua` | tokyonight（storm） |
+| `lua/plugins/colorscheme.lua` | tokyonight（既定）+ 比較用 catppuccin / kanagawa / gruvbox |
+| `lua/plugins/explorer.lua` | oil.nvim（ファイラ、`-` で親ディレクトリ） |
 | `lua/plugins/ui.lua` | lualine / which-key / mini.icons |
 | `lua/plugins/treesitter.lua` | nvim-treesitter（main ブランチ）/ treesitter-context |
 | `lua/plugins/lsp.lua` | mason / mason-lspconfig / nvim-lspconfig / lazydev、LSP キーマップ |
@@ -23,11 +24,13 @@ Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使�
 | `colors/tender.vim` | 旧 vim から移植したカラースキーム（`:colorscheme tender` で切替） |
 | `lazy-lock.json` | プラグインのバージョン固定 |
 
-## プラグイン（12 個）
+## プラグイン（13 個 + 比較用カラースキーム 3 個）
 
 | プラグイン | 役割 | 読込タイミング |
 |---|---|---|
-| tokyonight.nvim | カラースキーム | 起動時 |
+| tokyonight.nvim | カラースキーム（既定） | 起動時 |
+| catppuccin / kanagawa.nvim / gruvbox.nvim | 比較用カラースキーム。決まったら不要分を削除 | `:colorscheme` 切替時 |
+| oil.nvim | ファイラ（ディレクトリをバッファとして編集） | 起動時 |
 | nvim-treesitter (+context) | シンタックスハイライト・インデント・関数ヘッダ固定表示 | 起動時 / VeryLazy |
 | mason.nvim / mason-lspconfig.nvim | LSP サーバの導入と自動有効化（clangd / neocmakelsp / lua_ls） | `:Mason` / ファイル読込時 |
 | nvim-lspconfig | 各 LSP サーバの既定設定 | ファイル読込時 |
@@ -49,6 +52,8 @@ Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使�
 | `jk` / `<Esc>` | 挿入モード脱出 / 検索ハイライト消去 | keymaps.lua |
 | `<leader>p`（visual） | レジスタを汚さないペースト | keymaps.lua |
 | `<leader>l` | `:Lazy` | keymaps.lua |
+| `-` | 親ディレクトリを oil で開く（oil 内: `<CR>` 開く / `-` 親へ / `g?` ヘルプ / `g.` 隠しファイル） | explorer.lua |
+| `<leader>uC` | カラースキーム picker（プレビュー付き） | telescope.lua |
 | `<leader>ff` `<leader><space>` | ファイル検索 | telescope.lua |
 | `<leader>fg` `<leader>/` | grep（ripgrep 必要） | telescope.lua |
 | `<leader>fb` / `fr` / `fh` / `fd` | バッファ / 最近のファイル / ヘルプ / 診断 | telescope.lua |
@@ -83,6 +88,14 @@ Neovim 0.11+ 前提（`vim.lsp.config` / `winborder` / `vim.hl.on_yank` を使�
 
 **記法:** 変更したら `### YYYY-MM-DD — 概要` の見出しを **この行のすぐ下（新しいものが上）** に追加し、
 変更点を箇条書きで書く。関連するファイル名を添える。
+
+### 2026-09-15 — oil.nvim 追加、比較用カラースキーム追加
+
+- `lua/plugins/explorer.lua`（新規）: oil.nvim。`default_file_explorer = true` で netrw を置換、`-` で親ディレクトリ
+- `lua/plugins/colorscheme.lua`: catppuccin (mocha) / kanagawa (wave) / gruvbox を `lazy = true` で追加。
+  既定は tokyonight-storm のまま。決まったら既定を差し替え、残りは削除して `:Lazy clean`
+- `lua/plugins/telescope.lua`: `<leader>uC` カラースキーム picker（未読込の colorscheme プラグインを先に読んでから一覧・プレビュー）
+- Comment.nvim は Neovim 標準の `gcc` / `gc` で足りるため見送り
 
 ### 2026-09-15 — LazyVim を外し自前 lazy.nvim 構成へ
 
