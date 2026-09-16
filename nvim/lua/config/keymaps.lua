@@ -3,11 +3,7 @@
 
 local map = vim.keymap.set
 
--- ウィンドウ移動
-map("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
-map("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
-map("n", "<C-k>", "<C-w>k", { desc = "Go to upper window" })
-map("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
+-- ウィンドウ移動 (<C-h/j/k/l>) は lua/plugins/smart-splits.lua で定義 (WezTerm pane とも連携)
 
 -- バッファ切替 / 閉じる
 map("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Prev buffer" })
