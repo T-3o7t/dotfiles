@@ -13,7 +13,7 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     dependencies = { "mason-org/mason.nvim", "neovim/nvim-lspconfig" },
     opts = {
-      ensure_installed = { "clangd", "neocmakelsp", "lua_ls" },
+      ensure_installed = { "clangd", "neocmake", "lua_ls" }, -- lspconfig のサーバ名（Mason パッケージ名 neocmakelsp ではない）
     },
   },
 
