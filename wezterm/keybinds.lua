@@ -1,14 +1,44 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
+local layout = require("layout")
+local colorscheme = require("colorscheme")
 
--- Show which key table is active in the status area
-wezterm.on("update-right-status", function(window, pane)
-  local name = window:active_key_table()
-  if name then
-    name = "TABLE: " .. name
+-- smart-splits.nvim 連携: CTRL+h/j/k/l を nvim と WezTerm で共有する
+--   nvim 上 (IS_NVIM user var) ならキーをそのまま nvim へ渡す
+--   その方向に pane があれば WezTerm の pane 移動
+--   どちらでもなければキーをそのまま渡す (CTRL+l の画面クリア等を維持)
+local function is_nvim(pane)
+  if pane:get_user_vars().IS_NVIM == "true" then
+    return true
   end
-  window:set_right_status(name or "")
-end)
+  local name = pane:get_foreground_process_name() or ""
+  return name:find("nvim") ~= nil
+end
+
+local nav_directions = { h = "Left", j = "Down", k = "Up", l = "Right" }
+
+local function nav_key(key)
+  local direction = nav_directions[key]
+  return {
+    key = key,
+    mods = "CTRL",
+    action = wezterm.action_callback(function(window, pane)
+      if not is_nvim(pane) and pane:tab():get_pane_direction(direction) then
+        window:perform_action(act.ActivatePaneDirection(direction), pane)
+      else
+        window:perform_action(act.SendKey({ key = key, mods = "CTRL" }), pane)
+      end
+    end),
+  }
+end
+
+-- pane を分割し、新しい pane を基準に等分する
+local function split_balanced(direction)
+  return function(window, pane)
+    local new_pane = pane:split({ direction = direction, domain = "CurrentPaneDomain" })
+    layout.balance_panes(window, new_pane)
+  end
+end
 
 return {
   keys = {
@@ -48,17 +78,35 @@ return {
         end),
       }),
     },
-    -- コマンドパレット表示
-    { key = "p", mods = "SUPER", action = act.ActivateCommandPalette },
+    -- 起動メニュー (WSL / PowerShell / cmd) leader + n
+    { key = "n", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "LAUNCH_MENU_ITEMS|DOMAINS", title = "Launch" }) },
+    -- タブ名の変更 leader + ,
+    {
+      key = ",",
+      mods = "LEADER",
+      action = act.PromptInputLine({
+        description = "(wezterm) Set tab title:",
+        action = wezterm.action_callback(function(window, pane, line)
+          if line then
+            window:active_tab():set_title(line)
+          end
+        end),
+      }),
+    },
+    -- Pane移動 (nvim 連携) ctrl + hjkl
+    nav_key("h"),
+    nav_key("j"),
+    nav_key("k"),
+    nav_key("l"),
     -- Tab移動
     { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
     { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
     -- Tab入れ替え
     { key = "{", mods = "LEADER", action = act({ MoveTabRelative = -1 }) },
     -- Tab新規作成
-    { key = "t", mods = "SUPER", action = act({ SpawnTab = "CurrentPaneDomain" }) },
+    { key = "t", mods = "CTRL|SHIFT", action = act({ SpawnTab = "CurrentPaneDomain" }) },
     -- Tabを閉じる
-    { key = "w", mods = "SUPER", action = act({ CloseCurrentTab = { confirm = true } }) },
+    { key = "w", mods = "CTRL|SHIFT", action = act({ CloseCurrentTab = { confirm = true } }) },
     { key = "}", mods = "LEADER", action = act({ MoveTabRelative = 1 }) },
 
     -- 画面フルスクリーン切り替え
@@ -68,13 +116,13 @@ return {
     -- { key = 'X', mods = 'LEADER', action = act.ActivateKeyTable{ name = 'copy_mode', one_shot =false }, },
     { key = "[", mods = "LEADER", action = act.ActivateCopyMode },
     -- コピー
-    { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
+    { key = "c", mods = "CTRL|SHIFT", action = act.CopyTo("Clipboard") },
     -- 貼り付け
-    { key = "v", mods = "SUPER", action = act.PasteFrom("Clipboard") },
+    { key = "v", mods = "CTRL|SHIFT", action = act.PasteFrom("Clipboard") },
 
-    -- Pane作成 leader + r or d
-    { key = "d", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-    { key = "r", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+    -- Pane作成 leader + r or d (分割後に自動で等分)
+    { key = "d", mods = "LEADER", action = wezterm.action_callback(split_balanced("Bottom")) },
+    { key = "r", mods = "LEADER", action = wezterm.action_callback(split_balanced("Right")) },
     -- Paneを閉じる leader + x
     { key = "x", mods = "LEADER", action = act({ CloseCurrentPane = { confirm = true } }) },
     -- Pane移動 leader + hlkj
@@ -86,6 +134,8 @@ return {
     { key = "[", mods = "CTRL|SHIFT", action = act.PaneSelect },
     -- 選択中のPaneのみ表示
     { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+    -- Paneを等分に揃える leader + =
+    { key = "=", mods = "LEADER", action = wezterm.action_callback(layout.balance_panes) },
 
     -- フォントサイズ切替
     { key = "+", mods = "CTRL", action = act.IncreaseFontSize },
@@ -93,17 +143,20 @@ return {
     -- フォントサイズのリセット
     { key = "0", mods = "CTRL", action = act.ResetFontSize },
 
-    -- タブ切替 Cmd + 数字
-    { key = "1", mods = "SUPER", action = act.ActivateTab(0) },
-    { key = "2", mods = "SUPER", action = act.ActivateTab(1) },
-    { key = "3", mods = "SUPER", action = act.ActivateTab(2) },
-    { key = "4", mods = "SUPER", action = act.ActivateTab(3) },
-    { key = "5", mods = "SUPER", action = act.ActivateTab(4) },
-    { key = "6", mods = "SUPER", action = act.ActivateTab(5) },
-    { key = "7", mods = "SUPER", action = act.ActivateTab(6) },
-    { key = "8", mods = "SUPER", action = act.ActivateTab(7) },
-    { key = "9", mods = "SUPER", action = act.ActivateTab(-1) },
+    -- タブ切替 Alt + 数字
+    { key = "1", mods = "ALT", action = act.ActivateTab(0) },
+    { key = "2", mods = "ALT", action = act.ActivateTab(1) },
+    { key = "3", mods = "ALT", action = act.ActivateTab(2) },
+    { key = "4", mods = "ALT", action = act.ActivateTab(3) },
+    { key = "5", mods = "ALT", action = act.ActivateTab(4) },
+    { key = "6", mods = "ALT", action = act.ActivateTab(5) },
+    { key = "7", mods = "ALT", action = act.ActivateTab(6) },
+    { key = "8", mods = "ALT", action = act.ActivateTab(7) },
+    { key = "9", mods = "ALT", action = act.ActivateTab(-1) },
 
+    -- カラースキーム切替 leader + c (お気に入り) / leader + C (全スキーム)
+    { key = "c", mods = "LEADER", action = colorscheme.pick_favorites() },
+    { key = "C", mods = "LEADER|SHIFT", action = colorscheme.pick_all() },
     -- コマンドパレット
     { key = "p", mods = "SHIFT|CTRL", action = act.ActivateCommandPalette },
     -- 設定再読み込み
