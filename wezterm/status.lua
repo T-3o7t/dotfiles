@@ -1,29 +1,94 @@
 local wezterm = require("wezterm")
+local palette = require("palette")
 
--- 右ステータス: [TABLE: xxx]  ws: name  |  battery  |  YYYY-MM-DD HH:MM
+-- アクティブ pane の cwd を短く表示 (ホームは ~、長ければ末尾 2 階層)
+local function short_cwd(pane)
+  local cwd = pane:get_current_working_dir()
+  if not cwd then
+    return nil
+  end
+  -- Url オブジェクト (20240203 以降) / 文字列の両方に対応
+  local path = type(cwd) == "userdata" and cwd.file_path or tostring(cwd)
+  path = path:gsub("[/\\]+$", "")
+  path = path:gsub("^/home/[^/]+", "~")
+  if wezterm.home_dir and #wezterm.home_dir > 0 and path:sub(1, #wezterm.home_dir) == wezterm.home_dir then
+    path = "~" .. path:sub(#wezterm.home_dir + 1)
+  end
+  if #path == 0 then
+    return "/"
+  end
+  if #path > 30 then
+    local tail = path:match("([^/\\]+[/\\][^/\\]+)$")
+    if tail then
+      path = "…/" .. tail
+    end
+  end
+  return path
+end
+
+-- フォアグラウンドプロセス名 (WSL 越しなどで取れない / wsl 自身のときは nil)
+local function process_name(pane)
+  local name = pane:get_foreground_process_name()
+  if not name then
+    return nil
+  end
+  name = name:match("([^/\\]+)$") or name
+  name = name:gsub("%.exe$", "")
+  if #name == 0 or name:find("^wsl") then
+    return nil
+  end
+  return name
+end
+
+-- 右ステータス: [LEADER] [TABLE: xxx]  cwd | proc | ws: name | battery | YYYY-MM-DD HH:MM
+-- 色は現在のカラースキームに合わせる (palette.lua)
 wezterm.on("update-status", function(window, pane)
-  local cells = {}
+  local c = palette.get(window:effective_config().color_scheme)
+  local elements = {}
 
+  -- LEADER 待機中 / キーテーブル有効中は目立つバッジで表示
+  local badges = {}
+  if window:leader_is_active() then
+    table.insert(badges, { text = "LEADER", bg = c.red })
+  end
   local key_table = window:active_key_table()
   if key_table then
-    table.insert(cells, { text = "TABLE: " .. key_table, fg = "#ae8b2d" })
+    table.insert(badges, { text = "TABLE: " .. key_table, bg = c.accent })
+  end
+  for _, b in ipairs(badges) do
+    table.insert(elements, { Background = { Color = b.bg } })
+    table.insert(elements, { Foreground = { Color = c.bg } })
+    table.insert(elements, { Text = " " .. b.text .. " " })
+    table.insert(elements, "ResetAttributes")
+    table.insert(elements, { Text = " " })
   end
 
-  table.insert(cells, { text = "ws: " .. window:active_workspace(), fg = "#8fbcbb" })
+  local cells = {}
+
+  local cwd = short_cwd(pane)
+  if cwd then
+    table.insert(cells, { text = cwd, fg = c.blue })
+  end
+
+  local proc = process_name(pane)
+  if proc then
+    table.insert(cells, { text = proc, fg = c.magenta })
+  end
+
+  table.insert(cells, { text = "ws: " .. window:active_workspace(), fg = c.cyan })
 
   -- バッテリー (ノート PC のみ。デスクトップでは空になる)
   for _, b in ipairs(wezterm.battery_info()) do
-    table.insert(cells, { text = string.format("%.0f%%", b.state_of_charge * 100), fg = "#a3be8c" })
+    table.insert(cells, { text = string.format("%.0f%%", b.state_of_charge * 100), fg = c.green })
   end
 
-  table.insert(cells, { text = wezterm.strftime("%Y-%m-%d %H:%M"), fg = "#d8dee9" })
+  table.insert(cells, { text = wezterm.strftime("%Y-%m-%d %H:%M"), fg = c.fg })
 
-  local elements = {}
-  for i, c in ipairs(cells) do
-    table.insert(elements, { Foreground = { Color = c.fg } })
-    table.insert(elements, { Text = " " .. c.text .. " " })
+  for i, cell in ipairs(cells) do
+    table.insert(elements, { Foreground = { Color = cell.fg } })
+    table.insert(elements, { Text = " " .. cell.text .. " " })
     if i < #cells then
-      table.insert(elements, { Foreground = { Color = "#5c6d74" } })
+      table.insert(elements, { Foreground = { Color = c.muted } })
       table.insert(elements, { Text = "|" })
     end
   end

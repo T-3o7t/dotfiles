@@ -72,6 +72,25 @@ config.colors = {
 config.disable_default_key_bindings = true
 config.keys = keybind.keys
 config.key_tables = keybind.key_tables
+-- マウス: 普通のクリックではリンクを開かず、Ctrl+クリックで開く
+config.mouse_bindings = {
+	{
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "NONE",
+		action = wezterm.action.CompleteSelection("ClipboardAndPrimarySelection"),
+	},
+	{
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "CTRL",
+		action = wezterm.action.OpenLinkAtMouseCursor,
+	},
+	-- Ctrl+クリックで選択が始まらないようにする
+	{
+		event = { Down = { streak = 1, button = "Left" } },
+		mods = "CTRL",
+		action = wezterm.action.Nop,
+	},
+}
 config.leader = { key = "Space", mods = "CTRL", timeout_milliseconds = 2000 }
 -- status.lua の時計 / background.lua の nvim 検知 (update-status) の更新間隔 [ms]
 config.status_update_interval = 500

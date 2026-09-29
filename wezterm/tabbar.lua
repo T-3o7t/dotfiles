@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local palette = require("palette")
 
 local SOLID_LEFT_ARROW = wezterm.nerdfonts.ple_lower_right_triangle
 local SOLID_RIGHT_ARROW = wezterm.nerdfonts.ple_upper_left_triangle
@@ -25,12 +26,14 @@ local function tab_label(tab)
 end
 
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
-  local tab_bg = "#5c6d74"
-  local tab_fg = "#FFFFFF"
+  -- 色は現在のカラースキームに合わせる (palette.lua)
+  local c = palette.get(config.color_scheme)
+  local tab_bg = c.muted
+  local tab_fg = c.fg
   local edge_bg = "none"
   if tab.is_active then
-    tab_bg = "#ae8b2d"
-    tab_fg = "#FFFFFF"
+    tab_bg = c.accent
+    tab_fg = c.bg
   end
   local edge_fg = tab_bg
   -- 番号は ALT+数字 に対応

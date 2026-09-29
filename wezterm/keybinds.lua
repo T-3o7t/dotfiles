@@ -112,6 +112,31 @@ return {
     -- 画面フルスクリーン切り替え
     { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
 
+    -- スクロールバック検索 ctrl + shift + f / leader + /
+    { key = "f", mods = "CTRL|SHIFT", action = act.Search({ CaseInSensitiveString = "" }) },
+    { key = "/", mods = "LEADER", action = act.Search({ CaseInSensitiveString = "" }) },
+    -- スクロール
+    { key = "PageUp", mods = "SHIFT", action = act.ScrollByPage(-1) },
+    { key = "PageDown", mods = "SHIFT", action = act.ScrollByPage(1) },
+
+    -- QuickSelect: 画面上のハッシュ / パス / URL などを選んでコピー leader + space
+    { key = "Space", mods = "LEADER", action = act.QuickSelect },
+    -- 画面上の URL を選んでブラウザで開く leader + u
+    {
+      key = "u",
+      mods = "LEADER",
+      action = act.QuickSelectArgs({
+        label = "open url",
+        patterns = { "https?://\\S+" },
+        action = wezterm.action_callback(function(window, pane)
+          local url = window:get_selection_text_for_pane(pane)
+          if url and #url > 0 then
+            wezterm.open_with(url)
+          end
+        end),
+      }),
+    },
+
     -- コピーモード
     -- { key = 'X', mods = 'LEADER', action = act.ActivateKeyTable{ name = 'copy_mode', one_shot =false }, },
     { key = "[", mods = "LEADER", action = act.ActivateCopyMode },
@@ -188,6 +213,20 @@ return {
       { key = "k", action = act.ActivatePaneDirection("Up") },
       { key = "j", action = act.ActivatePaneDirection("Down") },
     },
+    -- 検索モード ctrl + shift + f / leader + /
+    search_mode = {
+      { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
+      { key = "n", mods = "CTRL", action = act.CopyMode("NextMatch") },
+      { key = "p", mods = "CTRL", action = act.CopyMode("PriorMatch") },
+      { key = "DownArrow", mods = "NONE", action = act.CopyMode("NextMatch") },
+      { key = "UpArrow", mods = "NONE", action = act.CopyMode("PriorMatch") },
+      { key = "PageDown", mods = "NONE", action = act.CopyMode("NextMatchPage") },
+      { key = "PageUp", mods = "NONE", action = act.CopyMode("PriorMatchPage") },
+      -- 大文字小文字区別 / 無視 / 正規表現 を切替
+      { key = "r", mods = "CTRL", action = act.CopyMode("CycleMatchType") },
+      { key = "u", mods = "CTRL", action = act.CopyMode("ClearPattern") },
+      { key = "Escape", mods = "NONE", action = act.CopyMode("Close") },
+    },
     -- copyモード leader + [
     copy_mode = {
       -- 移動
@@ -232,6 +271,10 @@ return {
       { key = "V", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Line" }) },
       -- コピー
       { key = "y", mods = "NONE", action = act.CopyTo("Clipboard") },
+      -- 検索 / で開始、n / N で次・前の一致へ
+      { key = "/", mods = "NONE", action = act.Search({ CaseInSensitiveString = "" }) },
+      { key = "n", mods = "NONE", action = act.CopyMode("NextMatch") },
+      { key = "N", mods = "NONE", action = act.CopyMode("PriorMatch") },
 
       -- コピーモードを終了
       {
