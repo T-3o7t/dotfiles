@@ -26,21 +26,7 @@ local function short_cwd(pane)
   return path
 end
 
--- フォアグラウンドプロセス名 (WSL 越しなどで取れない / wsl 自身のときは nil)
-local function process_name(pane)
-  local name = pane:get_foreground_process_name()
-  if not name then
-    return nil
-  end
-  name = name:match("([^/\\]+)$") or name
-  name = name:gsub("%.exe$", "")
-  if #name == 0 or name:find("^wsl") then
-    return nil
-  end
-  return name
-end
-
--- 右ステータス: [LEADER] [TABLE: xxx]  cwd | proc | ws: name | battery | YYYY-MM-DD HH:MM
+-- 右ステータス: [LEADER] [TABLE: xxx]  cwd | ws: name | battery | YYYY-MM-DD HH:MM
 -- 色は現在のカラースキームに合わせる (palette.lua)
 wezterm.on("update-status", function(window, pane)
   local c = palette.get(window:effective_config().color_scheme)
@@ -68,11 +54,6 @@ wezterm.on("update-status", function(window, pane)
   local cwd = short_cwd(pane)
   if cwd then
     table.insert(cells, { text = cwd, fg = c.blue })
-  end
-
-  local proc = process_name(pane)
-  if proc then
-    table.insert(cells, { text = proc, fg = c.magenta })
   end
 
   table.insert(cells, { text = "ws: " .. window:active_workspace(), fg = c.cyan })
