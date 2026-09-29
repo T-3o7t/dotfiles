@@ -22,5 +22,44 @@ WSL 上で実行した場合は、Windows 側の WezTerm が読む `%USERPROFILE
 | `background.lua` | 背景画像 (既定では無効。`wezterm.lua` の require のコメントを外して有効化) |
 | `images/` | 背景画像 |
 
+### 操作方法 (検索 / QuickSelect / URL / 表示)
+
+LEADER = `CTRL+Space` を押して離してから、2 秒以内に次のキーを押す。
+
+#### スクロールバック検索
+
+| キー | 動作 |
+|---|---|
+| `CTRL+SHIFT+F` / `LEADER` → `/` | 検索を開始 (文字を打つと一致箇所がハイライトされる) |
+| `CTRL+n` / `↓` | 次の一致へ |
+| `CTRL+p` / `↑` / `Enter` | 前の一致へ |
+| `PageDown` / `PageUp` | 1 ページ先 / 前の一致へ |
+| `CTRL+r` | 大文字小文字を区別 → 無視 → 正規表現 を順に切替 |
+| `CTRL+u` | 入力した検索語を消す |
+| `Escape` | 検索を終了 |
+
+コピーモード (`LEADER` → `[`) の中では `/` で検索開始、`n` / `N` で次 / 前の一致へ移動、`v` で選択して `y` でコピー。
+
+| キー | 動作 |
+|---|---|
+| `SHIFT+PageUp` / `SHIFT+PageDown` | 1 ページ上 / 下へスクロール |
+
+#### QuickSelect / URL を開く
+
+| キー | 動作 |
+|---|---|
+| `LEADER` → `Space` | 画面上のハッシュ・パス・URL・数字などに英字ラベルが付く。ラベルを打つとその文字列をクリップボードへコピー (`Escape` で中止) |
+| `LEADER` → `u` | 画面上の URL だけにラベルが付く。ラベルを打つとブラウザで開く |
+| `CTRL` + 左クリック | マウス下の URL をブラウザで開く (普通のクリックでは開かない) |
+
+QuickSelect でラベルを大文字で打つと、コピーに加えて貼り付けも行う。
+
+#### 右ステータスとタブの表示
+
+- 右ステータス: `[LEADER] [TABLE: 名前]  ws: workspace | バッテリー | 日時`
+  - `LEADER` バッジは `CTRL+Space` を押して次のキーを待っている間だけ表示される
+  - `TABLE` バッジは `LEADER+s` (pane サイズ調整) などのキーテーブルが有効な間だけ表示される
+- タブとステータスの色は、現在のカラースキームの色から自動で決まる。`LEADER` → `c` (お気に入り) / `LEADER` → `C` (全スキーム) でテーマを変えると一緒に変わる
+
 nvim との `CTRL+h/j/k/l` pane 移動連携には `nvim/lua/plugins/smart-splits.lua` が必要。
 WSL では `wezterm` コマンドが PATH にある必要がある: `ln -s "/mnt/c/Program Files/WezTerm/wezterm.exe" ~/.local/bin/wezterm`
