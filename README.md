@@ -15,7 +15,7 @@ WSL 上で実行した場合は、Windows 側の WezTerm が読む `%USERPROFILE
 | `wezterm.lua` | 本体。フォント・見た目・Windows 固有設定 (WSL 既定起動など) |
 | `keybinds.lua` | キーバインド。LEADER は `CTRL+Space`。検索 `CTRL+SHIFT+F` / `LEADER+/`、QuickSelect `LEADER+Space`、URL を開く `LEADER+u` |
 | `tabbar.lua` | タブ表示 (`番号: ディレクトリ名`) |
-| `status.lua` | 右ステータス (LEADER / キーテーブル / cwd / workspace / 時刻) |
+| `status.lua` | 右ステータス (LEADER / キーテーブル / workspace / 時刻) |
 | `palette.lua` | 現在のカラースキームからタブ・ステータスの色を取り出す |
 | `layout.lua` | pane の自動等分 (分割時・閉じた時) と `LEADER+=` |
 | `colorscheme.lua` | `LEADER+c` / `LEADER+C` でのカラースキーム切替 (選択は `.colorscheme` に保存) |

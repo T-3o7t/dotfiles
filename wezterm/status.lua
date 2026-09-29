@@ -1,32 +1,7 @@
 local wezterm = require("wezterm")
 local palette = require("palette")
 
--- アクティブ pane の cwd を短く表示 (ホームは ~、長ければ末尾 2 階層)
-local function short_cwd(pane)
-  local cwd = pane:get_current_working_dir()
-  if not cwd then
-    return nil
-  end
-  -- Url オブジェクト (20240203 以降) / 文字列の両方に対応
-  local path = type(cwd) == "userdata" and cwd.file_path or tostring(cwd)
-  path = path:gsub("[/\\]+$", "")
-  path = path:gsub("^/home/[^/]+", "~")
-  if wezterm.home_dir and #wezterm.home_dir > 0 and path:sub(1, #wezterm.home_dir) == wezterm.home_dir then
-    path = "~" .. path:sub(#wezterm.home_dir + 1)
-  end
-  if #path == 0 then
-    return "/"
-  end
-  if #path > 30 then
-    local tail = path:match("([^/\\]+[/\\][^/\\]+)$")
-    if tail then
-      path = "…/" .. tail
-    end
-  end
-  return path
-end
-
--- 右ステータス: [LEADER] [TABLE: xxx]  cwd | ws: name | battery | YYYY-MM-DD HH:MM
+-- 右ステータス: [LEADER] [TABLE: xxx]  ws: name | battery | YYYY-MM-DD HH:MM
 -- 色は現在のカラースキームに合わせる (palette.lua)
 wezterm.on("update-status", function(window, pane)
   local c = palette.get(window:effective_config().color_scheme)
@@ -50,11 +25,6 @@ wezterm.on("update-status", function(window, pane)
   end
 
   local cells = {}
-
-  local cwd = short_cwd(pane)
-  if cwd then
-    table.insert(cells, { text = cwd, fg = c.blue })
-  end
 
   table.insert(cells, { text = "ws: " .. window:active_workspace(), fg = c.cyan })
 
