@@ -2,6 +2,7 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local layout = require("layout")
 local colorscheme = require("colorscheme")
+local background = require("background")
 
 -- smart-splits.nvim 連携: CTRL+h/j/k/l を nvim と WezTerm で共有する
 --   nvim 上 (IS_NVIM user var) ならキーをそのまま nvim へ渡す
@@ -182,6 +183,8 @@ return {
     -- カラースキーム切替 leader + c (お気に入り) / leader + C (全スキーム)
     { key = "c", mods = "LEADER", action = colorscheme.pick_favorites() },
     { key = "C", mods = "LEADER|SHIFT", action = colorscheme.pick_all() },
+    -- 背景画像切替 leader + b (images/ 配下 or なし)
+    { key = "b", mods = "LEADER", action = background.pick() },
     -- コマンドパレット
     { key = "p", mods = "SHIFT|CTRL", action = act.ActivateCommandPalette },
     -- 設定再読み込み
