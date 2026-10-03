@@ -50,7 +50,8 @@ vim.opt.timeoutlen = 300 -- which-key のポップアップまでの時間
 vim.opt.clipboard = "unnamedplus" -- yank / paste を OS クリップボードと共有
 
 -- WSL クリップボード連携（win32yank 経由。Windows 側 Neovim 同梱の win32yank.exe が PATH にある前提）
-if vim.fn.has("wsl") == 1 then
+-- vscode-neovim では VS Code のクリップボードが使われるので設定しない
+if vim.fn.has("wsl") == 1 and not vim.g.vscode then
   vim.g.clipboard = {
     name = "win32yank-wsl",
     copy = {

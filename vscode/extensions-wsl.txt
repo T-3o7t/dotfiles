@@ -1,0 +1,8 @@
+# WSL 側 (Remote-WSL のサーバ) に入れる拡張機能。install.sh が ~/.vscode-server の code-server で導入する
+asvetliakov.vscode-neovim
+james-yu.latex-workshop
+llvm-vs-code-extensions.vscode-clangd
+sumneko.lua
+usernamehw.errorlens
+johnnymorganz.stylua
+ms-ceintl.vscode-language-pack-ja

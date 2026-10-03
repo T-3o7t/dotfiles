@@ -1,0 +1,130 @@
+{
+    // ---------- Editor (WSL の nvim lua/config/options.lua に合わせる) ----------
+
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.lineNumbers": "relative",
+    "editor.cursorSurroundingLines": 4,
+    "editor.wordWrap": "off",
+    "editor.renderWhitespace": "boundary",
+    // treesitter-context 相当（関数ヘッダを上部に固定、最大 3 行）
+    "editor.stickyScroll.enabled": true,
+    "editor.stickyScroll.maxLineCount": 3,
+    "search.smartCase": true,
+    "files.eol": "\n",
+    "files.encoding": "utf8",
+
+    // フォント・配色（WezTerm / nvim に合わせる。JetBrains Mono 未導入の間は BIZ UDゴシックで表示）
+    "editor.fontFamily": "'JetBrains Mono', 'BIZ UDGothic', 'Symbols Nerd Font Mono', Consolas, monospace",
+    "terminal.integrated.fontFamily": "'JetBrains Mono', 'BIZ UDGothic', 'Symbols Nerd Font Mono', Consolas, monospace",
+    "editor.fontSize": 14,
+    "workbench.colorTheme": "Catppuccin Mocha",
+
+
+    // ---------- vscode-neovim ----------
+
+    // WSL の nvim (~/.config/nvim -> dotfiles/nvim) を使う。init.lua で vim.g.vscode を見て分岐
+    "vscode-neovim.neovimExecutablePaths.linux": "/usr/bin/nvim",
+    // 挿入モードは VS Code 側で処理されるので jk の Esc はここで定義
+    "vscode-neovim.compositeKeys": {
+        "jk": { "command": "vscode-neovim.escape" }
+    },
+    // vscode-neovim は VS Code の Vim 系拡張と競合するので Neovim を優先
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+
+
+    // ---------- LSP / Formatter (nvim の Mason 導入物を流用) ----------
+
+    "clangd.path": "/home/ta/.local/share/nvim/mason/bin/clangd",
+    "clangd.arguments": [
+        "--background-index",
+        "--clang-tidy",
+        "--header-insertion=iwyu"
+    ],
+    "stylua.styluaPath": "/home/ta/.local/share/nvim/mason/bin/stylua",
+
+
+    // ---------- Language ----------
+
+    "[tex]": {
+        // スニペット補完中にも補完を使えるようにする
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        // インデント幅を2にする
+        "editor.tabSize": 2
+    },
+
+    "[latex]": {
+        // スニペット補完中にも補完を使えるようにする
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        // インデント幅を2にする
+        "editor.tabSize": 2
+    },
+
+    "[bibtex]": {
+        // インデント幅を2にする
+        "editor.tabSize": 2
+    },
+
+
+    // ---------- LaTeX Workshop ----------
+
+    // 使用パッケージのコマンドや環境の補完を有効にする
+    "latex-workshop.intellisense.package.enabled": true,
+
+    // 生成ファイルを削除するときに対象とするファイル
+    // デフォルト値に "*.synctex.gz" を追加
+    "latex-workshop.latex.clean.fileTypes": [
+        "*.aux",
+        "*.bbl",
+        "*.blg",
+        "*.idx",
+        "*.ind",
+        "*.lof",
+        "*.lot",
+        "*.out",
+        "*.toc",
+        "*.acn",
+        "*.acr",
+        "*.alg",
+        "*.glg",
+        "*.glo",
+        "*.gls",
+        "*.ist",
+        "*.fls",
+        "*.log",
+        "*.fdb_latexmk",
+        "*.snm",
+        "*.nav",
+        "*.dvi",
+        "*.synctex.gz"
+    ],
+
+    // 生成ファイルを "out" ディレクトリに吐き出す
+    "latex-workshop.latex.outDir": "out",
+
+    // ビルドのレシピ
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "latexmk",
+            "tools": [
+                "latexmk"
+            ]
+        },
+    ],
+
+    // ビルドのレシピに使われるパーツ
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "-silent",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+        },
+    ],
+}

@@ -1,0 +1,5 @@
+# Windows 側 (UI 拡張) に入れる拡張機能。install.sh が `code --install-extension` で導入する
+ms-vscode-remote.remote-wsl
+ms-ceintl.vscode-language-pack-ja
+catppuccin.catppuccin-vsc
+enkia.tokyo-night

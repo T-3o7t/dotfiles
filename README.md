@@ -7,6 +7,7 @@ git clone git@github.com:T-3o7t/dotfiles.git ~/github/dotfiles
 
 `install.sh` はホーム直下の dotfile と `~/.config/nvim`, `~/.config/wezterm` をこのリポジトリへのシンボリックリンクにします。
 WSL 上で実行した場合は、Windows 側の WezTerm が読む `%USERPROFILE%\.config\wezterm` にもコピーします(設定を変えたら再度 `install.sh` を実行して反映)。
+同様に VS Code の `vscode/settings.json` を `%APPDATA%\Code\User` にコピーし、拡張機能を導入します(詳細は [vscode/README.md](vscode/README.md))。
 
 ## wezterm
 
