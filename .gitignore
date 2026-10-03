@@ -1,2 +1,3 @@
-# WezTerm が実行時に書く状態ファイル (LEADER+c で選んだカラースキーム)
+# WezTerm が実行時に書く状態ファイル (LEADER+c のカラースキーム / LEADER+b の背景画像)
 wezterm/.colorscheme
+wezterm/.background

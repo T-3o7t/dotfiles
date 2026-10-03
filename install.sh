@@ -25,9 +25,9 @@ if [[ -n "${WSL_DISTRO_NAME}" ]] && command -v wslpath >/dev/null 2>&1; then
 	if [[ -d "${win_home}" ]]; then
 		win_wezterm="${win_home}/.config/wezterm"
 		mkdir -p "${win_wezterm}"
-		# .colorscheme は実行時の状態ファイルなので残す
+		# .colorscheme / .background は実行時の状態ファイルなので残す
 		if command -v rsync >/dev/null 2>&1; then
-			rsync -a --delete --exclude '.colorscheme' "${DOT_DIRECTORY}/wezterm/" "${win_wezterm}/"
+			rsync -a --delete --exclude '.colorscheme' --exclude '.background' "${DOT_DIRECTORY}/wezterm/" "${win_wezterm}/"
 		else
 			cp -r "${DOT_DIRECTORY}/wezterm/." "${win_wezterm}/"
 		fi

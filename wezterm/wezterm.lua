@@ -5,10 +5,6 @@ require("tabbar") -- format-tab-title
 require("status") -- 右ステータス表示
 require("layout").watch_pane_close() -- pane を閉じたら残りを等分
 
--- 背景画像 (background.lua / images/) を有効にする場合は次の行のコメントを解除
-local background = nil
--- background = require("background")
-
 -- This will hold the configuration.
 local config = wezterm.config_builder()
 config.automatically_reload_config = true
@@ -58,7 +54,7 @@ config.window_frame = {
 	inactive_titlebar_bg = "none",
 	active_titlebar_bg = "none",
 }
--- 背景無効時のベース色。config.background を有効にするとこちらは無視される
+-- 背景画像なしのときのベース色。画像を選ぶと config.background が優先され、こちらは無視される
 config.window_background_gradient = {
 	colors = { "#000000" },
 }
@@ -94,7 +90,9 @@ config.mouse_bindings = {
 config.leader = { key = "Space", mods = "CTRL", timeout_milliseconds = 2000 }
 -- status.lua の時計 / background.lua の nvim 検知 (update-status) の更新間隔 [ms]
 config.status_update_interval = 500
-config.background = background
+
+-- 背景画像: LEADER+b で images/ 配下から切替、選択は .background に保存される
+config.background = require("background").load()
 
 -- カラースキーム: LEADER+c / LEADER+C で切替、選択は .colorscheme に保存される
 config.color_scheme = require("colorscheme").load()
