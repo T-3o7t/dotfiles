@@ -33,4 +33,10 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
+
+# nvim の Mason で入れたツール (stylua など)。VS Code からも使うので PATH に入れる
+# システムのコマンドを上書きしないよう末尾に追加
+if [ -d "$HOME/.local/share/nvim/mason/bin" ] ; then
+    PATH="$PATH:$HOME/.local/share/nvim/mason/bin"
+fi
 # . "$HOME/.cargo/env"

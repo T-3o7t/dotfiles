@@ -38,13 +38,15 @@
 
     // ---------- LSP / Formatter (nvim の Mason 導入物を流用) ----------
 
-    "clangd.path": "/home/ta/.local/share/nvim/mason/bin/clangd",
+    // ${userHome} は vscode-clangd が展開するので環境ごとのホームに依存しない
+    "clangd.path": "${userHome}/.local/share/nvim/mason/bin/clangd",
     "clangd.arguments": [
         "--background-index",
         "--clang-tidy",
         "--header-insertion=iwyu"
     ],
-    "stylua.styluaPath": "/home/ta/.local/share/nvim/mason/bin/stylua",
+    // stylua 拡張はパスの変数を展開しないので、~/.profile で PATH に入れた Mason の stylua を探させる
+    "stylua.searchBinaryInPATH": true,
 
 
     // ---------- Language ----------
