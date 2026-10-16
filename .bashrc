@@ -133,3 +133,34 @@ export PATH="$HOME/.local/bin:$PATH"
 if command -v nvim >/dev/null 2>&1; then
     alias n='nvim'
 fi
+
+# open-excel (only windows)
+ open-excel() {
+     current_dir=$(pwd)
+     if [ "$1" != "" ]; then
+         file_path_win=$(wslpath -w "$current_dir/$1")
+         cmd.exe /c start excel "" "$file_path_win"
+     fi
+ }
+ 
+ # open-pdf (only windows)
+ open-pdf() {
+    current_dir=$(pwd)
+    if [ "$1" != "" ]; then
+        file_path_win=$(wslpath -w "$current_dir/$1")
+        cmd.exe /c start msedge "" "$file_path_win"
+    fi
+ }
+ 
+ # open-dir (only windows)
+  open-dir() {
+      current_dir=$(pwd)
+      file_path_win=$(wslpath -w "$current_dir/")
+      explorer.exe $file_path_win
+  }
+
+# ショートカット
+alias xls='open-excel'
+alias pdf='open-pdf'
+alias open='open-dir'
+
