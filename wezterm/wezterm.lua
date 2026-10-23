@@ -35,6 +35,8 @@ config.font = wezterm.font_with_fallback({
 	"Symbols Nerd Font Mono",
 })
 config.font_size = 12.0
+-- 合字（!= → ≠ / == / -> など）を無効にし、入力した文字をそのまま表示する
+config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
 config.use_ime = true
 
 config.window_background_opacity = 0.85
