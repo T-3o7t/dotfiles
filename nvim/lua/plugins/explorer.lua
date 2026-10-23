@@ -12,7 +12,25 @@ return {
       view_options = {
         show_hidden = true,
       },
+      -- oil バッファ内では <leader>fg / <leader>ff を「表示中のディレクトリ以下」対象に上書き
+      keymaps = {
+        ["<leader>fg"] = {
+          function()
+            require("telescope.builtin").live_grep({ cwd = require("oil").get_current_dir() })
+          end,
+          mode = "n",
+          desc = "Grep in oil directory",
+        },
+        ["<leader>ff"] = {
+          function()
+            require("telescope.builtin").find_files({ cwd = require("oil").get_current_dir() })
+          end,
+          mode = "n",
+          desc = "Find files in oil directory",
+        },
+      },
       -- oil バッファ内: <CR> 開く / - 親へ / g? ヘルプ / <C-p> プレビュー / g. 隠しファイル切替
+      --                <leader>fg 表示中ディレクトリを grep / <leader>ff 表示中ディレクトリでファイル検索
     },
   },
 
